@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='regis.css') }}">
+</head>
+<body>
+    
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='KazPrice.png') }}" class="logo" alt="KazPrice">
+    </div>
+
+    <div class="form-wrapper">
+        
+        <h1 class="form-title">Создайте аккаунт</h1>
+
+        {% if message %}
+            <div class="message">{{ message }}</div>
+        {% endif %}
+
+        
+        <form action="{{ url_for('regis') }}" method="POST" class="register-form">
+            
+            <div class="form-group">
+                <label for="name">Имя:</label>
+                <input type="text" id="name" name="name" placeholder="Введите имя..." required>
+            </div>
+
+            <div class="form-group">
+                <label for="gmail">Email:</label>
+                <input type="email" id="gmail" name="gmail" placeholder="Введите email..." required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" minlength="6" placeholder="Введите пароль..." required>
+            </div>
+
+            
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="terms" required>
+                    <span>Я согласен с <a href="#">условиями использования</a></span>
+                </label>
+            </div>
+
+            
+            <button type="submit" class="submit-btn">Зарегистрироваться</button>
+            
+            
+            <p class="login-link">Уже есть аккаунт? <a href="{{ url_for('voi') }}">Войти</a></p>
+        </form>
+    </div>
+
+</body>
+</html>

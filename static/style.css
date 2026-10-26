@@ -1,0 +1,649 @@
+/* ===== CSS Reset & Base Styles ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+  color: #1a2332;
+  background: linear-gradient(135deg, #f8faf9 0%, #f0f7ed 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Added background animation */
+  animation: backgroundShift 20s ease infinite;
+}
+
+/* Added background animation keyframes */
+@keyframes backgroundShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ===== Container ===== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+}
+
+/* ===== Header ===== */
+.header {
+  /* Made header background transparent */
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: none;
+  /* Added slide down animation */
+  animation: slideDown 0.5s ease-out;
+}
+
+/* Added header slide down animation */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  gap: 32px;
+}
+
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* Increased logo size to 120px and added pulse animation */
+.logo {
+  height: 120px;
+  width: auto;
+  display: block;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 12px rgba(127, 168, 79, 0.2));
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+/* Added logo pulse animation */
+@keyframes logoPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.logo:hover {
+  transform: scale(1.1) rotate(2deg);
+  filter: drop-shadow(0 8px 24px rgba(127, 168, 79, 0.4));
+}
+
+/* ===== Navigation ===== */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #1a2332;
+  font-weight: 500;
+  font-size: 15px;
+  padding: 12px 28px;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Added shine effect on hover */
+.nav-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.nav-link:hover::before {
+  left: 100%;
+}
+
+.nav-link:hover {
+  background: rgba(127, 168, 79, 0.1);
+  color: #7fa84f;
+  border-color: rgba(127, 168, 79, 0.2);
+  transform: translateY(-2px);
+}
+
+.nav-link-primary {
+  background: linear-gradient(135deg, #7fa84f 0%, #6a8f43 100%);
+  color: #ffffff;
+  border-color: #7fa84f;
+  box-shadow: 0 4px 15px rgba(127, 168, 79, 0.3);
+}
+
+.nav-link-primary:hover {
+  background: linear-gradient(135deg, #6a8f43 0%, #5a7a38 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(127, 168, 79, 0.4);
+}
+
+/* ===== Main Content ===== */
+.main {
+  flex: 1;
+  padding: 56px 0;
+}
+
+/* ===== Hero Section ===== */
+.hero {
+  text-align: center;
+  margin-bottom: 72px;
+  /* Added fade in animation */
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Added fade in up animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-box {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ed 100%);
+  border-radius: 24px;
+  padding: 64px 56px;
+  box-shadow: 0 10px 40px rgba(127, 168, 79, 0.15);
+  border: 2px solid rgba(127, 168, 79, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+/* Added animated gradient border */
+.hero-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #7fa84f, #9bc76d, #7fa84f, #9bc76d);
+  background-size: 200% 100%;
+  animation: gradientMove 3s linear infinite;
+}
+
+/* Added gradient animation */
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+/* Added floating particles effect */
+.hero-box::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(127, 168, 79, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: float 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Added float animation */
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -60%) scale(1.1);
+  }
+}
+
+.hero-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 50px rgba(127, 168, 79, 0.25);
+}
+
+.title {
+  font-size: 64px;
+  font-weight: 800;
+  color: #1a2332;
+  margin-bottom: 32px;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  /* Added text gradient animation */
+  background: linear-gradient(135deg, #1a2332 0%, #7fa84f 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: titleShine 3s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+
+/* Added title shine animation */
+@keyframes titleShine {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
+}
+
+.description {
+  font-size: 20px;
+  line-height: 1.8;
+  color: #3a4a5c;
+  max-width: 850px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.description strong {
+  color: #7fa84f;
+  font-weight: 700;
+  /* Added glow effect on strong text */
+  text-shadow: 0 0 20px rgba(127, 168, 79, 0.3);
+}
+
+/* ===== Info Text ===== */
+.info {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a2332;
+  padding: 24px 40px;
+  background: linear-gradient(135deg, #ffffff 0%, #f9fcf8 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-left: 5px solid #7fa84f;
+  /* Added pulse animation for loading state */
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Added pulse animation */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* ===== Chart Section ===== */
+.chart-section {
+  margin-bottom: 72px;
+  /* Added fade in animation with delay */
+  animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+.section-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1a2332;
+  margin-bottom: 40px;
+  text-align: center;
+  letter-spacing: -0.02em;
+  /* Added slide in animation */
+  animation: slideInFromLeft 0.6s ease-out;
+}
+
+/* Added slide in from left animation */
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.chart-container {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 56px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+  border: 2px solid rgba(127, 168, 79, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Added scale in animation */
+  animation: scaleIn 0.6s ease-out 0.4s backwards;
+}
+
+/* Added scale in animation */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Added animated corner accent */
+.chart-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, transparent 50%, rgba(127, 168, 79, 0.1) 50%);
+  animation: cornerPulse 3s ease-in-out infinite;
+}
+
+/* Added corner pulse animation */
+@keyframes cornerPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.chart-container:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  border-color: rgba(127, 168, 79, 0.3);
+}
+
+#ratesChart {
+  max-width: 100%;
+  height: 400px !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== About Section ===== */
+.about {
+  text-align: center;
+  margin-bottom: 48px;
+  /* Added fade in animation with delay */
+  animation: fadeInUp 0.8s ease-out 0.4s backwards;
+}
+
+.about-text {
+  font-size: 19px;
+  line-height: 1.8;
+  color: #3a4a5c;
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 48px 56px;
+  background: linear-gradient(135deg, #ffffff 0%, #f9fcf8 100%);
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  border-left: 6px solid #7fa84f;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Added glow effect on hover */
+.about-text::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(180deg, #7fa84f, #9bc76d, #7fa84f);
+  background-size: 100% 200%;
+  animation: borderGlow 3s linear infinite;
+}
+
+/* Added border glow animation */
+@keyframes borderGlow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 200%;
+  }
+}
+
+.about-text:hover {
+  transform: translateX(10px);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== Footer ===== */
+.footer {
+  background: linear-gradient(135deg, #1a2332 0%, #2a3a4c 100%);
+  color: #ffffff;
+  padding: 40px 0;
+  margin-top: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Added footer wave animation */
+.footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #7fa84f, #9bc76d, #7fa84f);
+  background-size: 200% 100%;
+  animation: gradientMove 3s linear infinite;
+}
+
+.footer-text {
+  text-align: center;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+}
+
+.footer-link {
+  color: #9bc76d;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Added underline animation */
+.footer-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #9bc76d;
+  transition: width 0.3s ease;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+.footer-link:hover {
+  color: #7fa84f;
+  text-shadow: 0 0 10px rgba(155, 199, 109, 0.5);
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 20px;
+    padding: 16px 0;
+  }
+
+  /* Adjusted logo size for tablet */
+  .logo {
+    height: 90px;
+  }
+
+  .nav {
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .nav-link {
+    font-size: 14px;
+    padding: 10px 22px;
+  }
+
+  .main {
+    padding: 40px 0;
+  }
+
+  .hero {
+    margin-bottom: 56px;
+  }
+
+  .hero-box {
+    padding: 48px 40px;
+    border-radius: 20px;
+  }
+
+  .title {
+    font-size: 48px;
+    margin-bottom: 24px;
+  }
+
+  .description {
+    font-size: 18px;
+    line-height: 1.75;
+  }
+
+  .chart-container {
+    padding: 36px;
+    border-radius: 16px;
+  }
+
+  .info {
+    font-size: 17px;
+    padding: 20px 32px;
+  }
+
+  .about-text {
+    font-size: 18px;
+    padding: 40px 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  /* Adjusted logo size for mobile */
+  .logo {
+    height: 70px;
+  }
+
+  .nav-link {
+    font-size: 13px;
+    padding: 9px 18px;
+  }
+
+  .hero-box {
+    padding: 36px 28px;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 38px;
+  }
+
+  .description {
+    font-size: 17px;
+  }
+
+  .chart-container {
+    padding: 24px;
+  }
+
+  .info {
+    font-size: 16px;
+    padding: 18px 28px;
+  }
+
+  .about-text {
+    font-size: 17px;
+    padding: 32px 28px;
+  }
+}
+
+/* Added smooth scroll reveal for all sections */
+@media (prefers-reduced-motion: no-preference) {
+  .hero,
+  .chart-section,
+  .about {
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+}

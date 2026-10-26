@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KazPrice — Актуальные курсы валют</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-wrapper">
+                    <img src="{{ url_for('static', filename='KazPrice.png') }}" class="logo" alt="KazPrice">
+                </div>
+                <nav class="nav">
+                    <a href="{{ url_for('voi') }}" class="nav-link">Войти</a>
+                    <a href="{{ url_for('regis') }}" class="nav-link nav-link-primary">Регистрация</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <section class="hero">
+                <div class="hero-box">
+                    <h1 class="title">KazPrice</h1>
+                    <p class="description">
+                        В условиях быстро меняющихся цен в Казахстане, особенно на фоне колебаний валют, 
+                        важно иметь инструмент, который показывает актуальные курсы и помогает принимать 
+                        осознанные финансовые решения.  
+                        <strong>KazPrice</strong> создан для того, чтобы упростить эту задачу.
+                    </p>
+                </div>
+            </section>
+
+            <section class="chart-section">
+                <h2 class="section-title">Актуальные курсы валют (KZT)</h2>
+
+                <div class="chart-container">
+                    <canvas id="ratesChart" width="700" height="400"></canvas>
+                </div>
+
+                <p id="info" class="info">Загрузка данных...</p>
+            </section>
+
+            <section class="about">
+                <p class="about-text">
+                    Это не просто график — это шаг к прозрачности цен и финансовой грамотности.
+                    KazPrice — ваш инструмент для понимания экономических изменений.
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                © 2025 KazPrice | Данные предоставлены <a href="https://open.er-api.com" target="_blank" class="footer-link">open.er-api.com</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        async function loadRates() {
+            try {
+                const res = await fetch('/api/rates');
+                const data = await res.json();
+
+                if (data.error) {
+                    document.getElementById("info").innerText = "Ошибка: " + data.error;
+                    return;
+                }
+
+                const labels = ["USD", "RUB", "CNY"];
+                const values = [data.USD, data.RUB, data.CNY];
+
+                const ctx = document.getElementById('ratesChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Курс валют к тенге (₸)',
+                            data: values,
+                            fill: true,
+                            backgroundColor: 'rgba(127, 168, 79, 0.1)',
+                            borderColor: '#7FA84F',
+                            tension: 0.4,
+                            pointBackgroundColor: '#7FA84F',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointHoverBackgroundColor: '#6a8f43',
+                            pointHoverBorderColor: '#fff',
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { 
+                                    color: '#1a2332', 
+                                    font: { size: 14, weight: '600', family: "'Inter', sans-serif" },
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(26, 35, 50, 0.95)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                padding: 12,
+                                cornerRadius: 8,
+                                displayColors: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: { 
+                                    color: '#5a6c7d', 
+                                    font: { size: 13, weight: '500' },
+                                    padding: 10
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: { 
+                                    color: '#5a6c7d', 
+                                    font: { size: 13, weight: '500' },
+                                    padding: 10
+                                }
+                            }
+                        }
+                    }
+                });
+
+                document.getElementById("info").innerText =
+                    `USD: ${data.USD} ₸ | RUB: ${data.RUB} ₸ | CNY: ${data.CNY} ₸`;
+
+            } catch (err) {
+                document.getElementById("info").innerText = "Ошибка загрузки данных 😢";
+                console.error(err);
+            }
+        }
+
+        loadRates();
+    </script>
+</body>
+</html>

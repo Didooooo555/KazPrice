@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Сравнение цен</title>
+</head>
+<body>
+  <button id="btn">Сравнить цены (батончик)</button>
+  <pre id="out"></pre>
+
+  <script>
+    document.getElementById('btn').onclick = async () => {
+      const query = "батончик"; // слово для поиска
+
+      // === API Magnum ===
+      const magnumUrl = "https://magnum.kz:1337/api/products";
+      const magnumParams = new URLSearchParams({
+        "pagination[page]": 1,
+        "pagination[pageSize]": 5,
+        "populate[image]": "*",
+        "filters[$and][0][name][$containsi]": query,
+        "filters[$and][1][shops][city][id][$eq]": 2,
+        "locale": "ru"
+      });
+
+      // === "Small" (пока заглушка) ===
+      // Если у Small нет открытого API, можно временно сделать фейковые данные:
+      const fakeSmallData = [
+        { name: "Батончик шоколадный", price: 570 },
+        { name: "Батончик ореховый", price: 520 }
+      ];
+
+      try {
+        const res = await fetch(magnumUrl + "?" + magnumParams.toString(), { 
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (!res.ok) throw new Error(res.status + " " + res.statusText);
+        const data = await res.json();
+
+        let output = "";
+
+        if (data.data && data.data.length > 0) {
+          output += "🟥 Magnum:\n";
+          data.data.forEach(item => {
+            const name = item.attributes.name;
+            const price = item.attributes.final_price || "Цена не указана";
+            output += `- ${name}: ${price} ₸\n`;
+          });
+        } else {
+          output += "❌ Magnum: товары не найдены.\n";
+        }
+
+        output += "\n🟩 Small:\n";
+        fakeSmallData.forEach(item => {
+          output += `- ${item.name}: ${item.price} ₸\n`;
+        });
+
+        // Пример сравнения по минимальной цене
+        const allPrices = [
+          ...data.data.map(i => i.attributes.final_price || Infinity),
+          ...fakeSmallData.map(i => i.price)
+        ];
+        const minPrice = Math.min(...allPrices);
+
+        output += `\n💰 Самая низкая цена: ${minPrice} ₸`;
+
+        document.getElementById('out').textContent = output;
+
+      } catch (e) {
+        document.getElementById('out').textContent = "Ошибка: " + e.message;
+      }
+    };
+  </script>
+</body>
+</html>

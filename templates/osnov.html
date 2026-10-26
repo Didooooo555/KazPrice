@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>KazPrice - Сравнение цен</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='osnov.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-wrapper">
+                    <img src="{{ url_for('static', filename='KazPrice.png') }}" class="logo" alt="KazPrice">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <section class="search-section">
+                <h1 class="page-title">Сравнение цен магазинов</h1>
+                
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Поиск продуктов" class="search-input">
+                    <button id="searchBtn" class="search-btn">Найти</button>
+                </div>
+            </section>
+            
+            <div id="productsSection" class="products-section">
+                <h2 class="section-title">Продукты</h2>
+                <div id="productsList" class="products-grid"></div>
+            </div>
+            
+            <div id="cartSection" class="cart-section">
+                <h2 class="section-title">Корзина</h2>
+                <div id="cartItems" class="cart-items"></div>
+                <div id="cartTotal" class="cart-total">Итого: 0 ₸</div>
+                <a href="{{ url_for('zak') }}" class="order-btn" onclick="saveCartData()">Пора заказывать</a>
+            </div>
+            
+            <div id="chartSection" class="chart-section">
+                <h2 class="section-title">Сравнение цен</h2>
+                <div id="priceChart" class="price-chart"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const products = [
+            { id: 1, name: "Шоколад", smallPrice: 450, kyzylordaPrice: 420 },
+            { id: 2, name: "Печенье", smallPrice: 320, kyzylordaPrice: 300 },
+            { id: 3, name: "Чай", smallPrice: 800, kyzylordaPrice: 750 },
+            { id: 4, name: "Кофе", smallPrice: 2200, kyzylordaPrice: 2100 },
+            { id: 5, name: "Сахар", smallPrice: 280, kyzylordaPrice: 250 },
+            { id: 6, name: "Сок", smallPrice: 550, kyzylordaPrice: 500 },
+            { id: 7, name: "Вода", smallPrice: 150, kyzylordaPrice: 130 }
+        ];
+
+        let cart = [];
+        let totalPrice = 0;
+
+        // Функция для сохранения данных корзины перед переходом
+        function saveCartData() {
+            if (cart.length === 0) {
+                alert('Корзина пуста! Добавьте товары перед оформлением заказа.');
+                return false;
+            }
+
+            const storeTotals = calculateStoreTotals();
+            
+            // Сохраняем в sessionStorage для передачи на следующую страницу
+            sessionStorage.setItem('lastCart', JSON.stringify(cart));
+            sessionStorage.setItem('lastTotal', totalPrice.toString());
+            sessionStorage.setItem('lastStoreTotals', JSON.stringify(storeTotals));
+            
+            return true;
+        }
+
+        // Функция для расчета итогов по магазинам
+        function calculateStoreTotals() {
+            const storeTotals = {
+                magnum: 0,
+                small: 0,
+                kyzylorda: 0
+            };
+            
+            cart.forEach(item => {
+                storeTotals.magnum += item.magnumPrice !== Infinity ? item.magnumPrice : 0;
+                storeTotals.small += item.smallPrice;
+                storeTotals.kyzylorda += item.kyzylordaPrice;
+            });
+            
+            return storeTotals;
+        }
+
+        async function displayProducts(productsToShow = products) {
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '';
+            
+            for (const product of productsToShow) {
+                let magnumPrice = "Загрузка...";
+                
+                try {
+                    const magnumUrl = "https://magnum.kz:1337/api/products";
+                    const magnumParams = new URLSearchParams({
+                        "pagination[page]": 1,
+                        "pagination[pageSize]": 1,
+                        "populate[image]": "*",
+                        "filters[$and][0][name][$containsi]": product.name,
+                        "filters[$and][1][shops][city][id][$eq]": 2,
+                        "locale": "ru"
+                    });
+
+                    const res = await fetch(magnumUrl + "?" + magnumParams.toString(), { 
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.data && data.data.length > 0) {
+                            magnumPrice = data.data[0].attributes.final_price || "Нет цены";
+                        } else {
+                            magnumPrice = "Не найдено";
+                        }
+                    } else {
+                        magnumPrice = "Ошибка API";
+                    }
+                } catch (e) {
+                    magnumPrice = "Ошибка";
+                }
+
+                const productDiv = document.createElement('div');
+                productDiv.className = 'product-card';
+                productDiv.innerHTML = `
+                    <h3 class="product-name">${product.name}</h3>
+                    <div class="product-prices">
+                        <div class="price-item">
+                            <span class="store-name">Magnum:</span>
+                            <span class="price-value">${magnumPrice} ₸</span>
+                        </div>
+                        <div class="price-item">
+                            <span class="store-name">Small:</span>
+                            <span class="price-value">${product.smallPrice} ₸</span>
+                        </div>
+                        <div class="price-item">
+                            <span class="store-name">Kyzylorda:</span>
+                            <span class="price-value">${product.kyzylordaPrice} ₸</span>
+                        </div>
+                    </div>
+                    <button onclick="addToCart(${product.id})" class="add-to-cart-btn">Добавить в корзину</button>
+                `;
+                productsList.appendChild(productDiv);
+            }
+        }
+
+        async function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            let magnumPrice = 0;
+            
+            try {
+                const magnumUrl = "https://magnum.kz:1337/api/products";
+                const magnumParams = new URLSearchParams({
+                    "pagination[page]": 1,
+                    "pagination[pageSize]": 1,
+                    "populate[image]": "*",
+                    "filters[$and][0][name][$containsi]": product.name,
+                    "filters[$and][1][shops][city][id][$eq]": 2,
+                    "locale": "ru"
+                });
+
+                const res = await fetch(magnumUrl + "?" + magnumParams.toString(), { 
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.data && data.data.length > 0) {
+                        magnumPrice = data.data[0].attributes.final_price || Infinity;
+                    } else {
+                        magnumPrice = Infinity;
+                    }
+                } else {
+                    magnumPrice = Infinity;
+                }
+            } catch (e) {
+                magnumPrice = Infinity;
+            }
+
+            const minPrice = Math.min(
+                magnumPrice,
+                product.smallPrice,
+                product.kyzylordaPrice
+            );
+            
+            const cartItem = {
+                id: product.id,
+                name: product.name,
+                price: minPrice,
+                magnumPrice: magnumPrice,
+                smallPrice: product.smallPrice,
+                kyzylordaPrice: product.kyzylordaPrice,
+                cartId: Date.now() + Math.random()
+            };
+            
+            cart.push(cartItem);
+            totalPrice += minPrice;
+            updateCart();
+            updateChart();
+        }
+
+        function removeFromCart(cartId) {
+            const itemIndex = cart.findIndex(item => item.cartId === cartId);
+            if (itemIndex !== -1) {
+                totalPrice -= cart[itemIndex].price;
+                cart.splice(itemIndex, 1);
+                updateCart();
+                updateChart();
+            }
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            cartItems.innerHTML = '';
+            cart.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                itemDiv.innerHTML = `
+                    <span class="cart-item-name">${item.name}</span>
+                    <span class="cart-item-price">${item.price} ₸</span>
+                    <button onclick="removeFromCart(${item.cartId})" class="remove-btn">Удалить</button>
+                `;
+                cartItems.appendChild(itemDiv);
+            });
+            
+            cartTotal.textContent = `Итого: ${totalPrice} ₸`;
+        }
+
+        function updateChart() {
+            const priceChart = document.getElementById('priceChart');
+            priceChart.innerHTML = '';
+            
+            if (cart.length === 0) {
+                priceChart.innerHTML = '<p class="chart-empty">Добавьте товары в корзину</p>';
+                return;
+            }
+            
+            const storeTotals = calculateStoreTotals();
+            const maxTotal = Math.max(...Object.values(storeTotals));
+            const scale = maxTotal > 0 ? 300 / maxTotal : 1;
+            
+            const chartDiv = document.createElement('div');
+            chartDiv.className = 'chart-bars';
+            
+            const magnumBar = document.createElement('div');
+            magnumBar.className = 'chart-bar';
+            magnumBar.innerHTML = `
+                <span class="bar-label">Magnum:</span>
+                <div class="bar-container">
+                    <div class="bar-fill bar-magnum" style="width:${storeTotals.magnum * scale}px;">
+                        <span class="bar-value">${storeTotals.magnum} ₸</span>
+                    </div>
+                </div>
+            `;
+            
+            const smallBar = document.createElement('div');
+            smallBar.className = 'chart-bar';
+            smallBar.innerHTML = `
+                <span class="bar-label">Small:</span>
+                <div class="bar-container">
+                    <div class="bar-fill bar-small" style="width:${storeTotals.small * scale}px;">
+                        <span class="bar-value">${storeTotals.small} ₸</span>
+                    </div>
+                </div>
+            `;
+            
+            const kyzylordaBar = document.createElement('div');
+            kyzylordaBar.className = 'chart-bar';
+            kyzylordaBar.innerHTML = `
+                <span class="bar-label">Kyzylorda:</span>
+                <div class="bar-container">
+                    <div class="bar-fill bar-kyzylorda" style="width:${storeTotals.kyzylorda * scale}px;">
+                        <span class="bar-value">${storeTotals.kyzylorda} ₸</span>
+                    </div>
+                </div>
+            `;
+            
+            chartDiv.appendChild(magnumBar);
+            chartDiv.appendChild(smallBar);
+            chartDiv.appendChild(kyzylordaBar);
+            priceChart.appendChild(chartDiv);
+        }
+
+        function searchProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredProducts = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm)
+            );
+            displayProducts(filteredProducts);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            displayProducts();
+            
+            document.getElementById('searchBtn').addEventListener('click', searchProducts);
+            document.getElementById('searchInput').addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    searchProducts();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

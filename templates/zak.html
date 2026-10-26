@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Оформление заказа</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='zak.css') }}">
+</head>
+<body>
+  
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-wrapper">
+                    <img src="{{ url_for('static', filename='KazPrice.png') }}" class="logo" alt="KazPrice">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+
+            <div class="page-header">
+                <h1 class="page-title">Оформление заказа</h1>
+            </div>
+            
+
+            <div class="form-section">
+                <form id="orderForm" class="order-form">
+                    <div class="form-group">
+                        <label class="form-label">Адрес доставки:</label>
+                        <input type="text" id="address" class="form-input" required placeholder="Введите адрес...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Номер телефона:</label>
+                        <input type="tel" id="phone" class="form-input" required placeholder="87773334400...">
+                    </div>
+                    <button type="submit" class="submit-btn">Заказать</button>
+                </form>
+            </div>
+
+
+            <div class="summary-section">
+                <div id="orderSummary" class="order-summary">
+                    <h2 class="section-title">Ваш заказ</h2>
+                    <div id="orderItems" class="order-items"></div>
+                    <div id="orderTotal" class="order-total">Итого: 0 ₸</div>
+                </div>
+            </div>
+
+
+            <div class="chart-section">
+                <div id="lastChartSection" class="last-chart-section">
+                    <h2 class="section-title">Сравнение цен в магазинах</h2>
+                    <div id="lastPriceChart" class="price-chart"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function showOrderSummary() {
+            // Получаем данные из sessionStorage
+            const cart = JSON.parse(sessionStorage.getItem('lastCart') || '[]');
+            const total = parseFloat(sessionStorage.getItem('lastTotal') || '0');
+            const storeTotals = JSON.parse(sessionStorage.getItem('lastStoreTotals') || '{}');
+            
+            const orderItems = document.getElementById('orderItems');
+            const orderTotal = document.getElementById('orderTotal');
+            
+            orderItems.innerHTML = '';
+            if (cart.length === 0) {
+                orderItems.innerHTML = '<p class="empty-message">Корзина пуста</p>';
+                orderTotal.textContent = 'Итого: 0 ₸';
+                showLastChart({magnum: 0, small: 0, kyzylorda: 0});
+                return;
+            }
+            
+            cart.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'order-item';
+                itemDiv.textContent = `${item.name} - ${item.price} ₸`;
+                orderItems.appendChild(itemDiv);
+            });
+            
+            orderTotal.textContent = `Итого: ${total} ₸`;
+            showLastChart(storeTotals);
+        }
+
+        function showLastChart(storeTotals) {
+            const lastPriceChart = document.getElementById('lastPriceChart');
+            lastPriceChart.innerHTML = '';
+            
+            if (Object.keys(storeTotals).length === 0) {
+                lastPriceChart.innerHTML = '<p class="chart-empty">Нет данных для сравнения</p>';
+                return;
+            }
+            
+            const maxTotal = Math.max(...Object.values(storeTotals));
+            const scale = maxTotal > 0 ? 300 / maxTotal : 1;
+            
+            const chartDiv = document.createElement('div');
+            chartDiv.className = 'chart-bars';
+            
+            const magnumBar = document.createElement('div');
+            magnumBar.className = 'chart-bar';
+            magnumBar.innerHTML = `
+                <div class="bar-label">Magnum:</div>
+                <div class="bar-container">
+                    <div class="bar-fill bar-magnum" style="width: ${storeTotals.magnum * scale}px;">
+                        <span class="bar-value">${storeTotals.magnum} ₸</span>
+                    </div>
+                </div>
+            `;
+            
+            const smallBar = document.createElement('div');
+            smallBar.className = 'chart-bar';
+            smallBar.innerHTML = `
+                <div class="bar-label">Small:</div>
+                <div class="bar-container">
+                    <div class="bar-fill bar-small" style="width: ${storeTotals.small * scale}px;">
+                        <span class="bar-value">${storeTotals.small} ₸</span>
+                    </div>
+                </div>
+            `;
+            
+            const kyzylordaBar = document.createElement('div');
+            kyzylordaBar.className = 'chart-bar';
+            kyzylordaBar.innerHTML = `
+                <div class="bar-label">Kyzylorda:</div>
+                <div class="bar-container">
+                    <div class="bar-fill bar-kyzylorda" style="width: ${storeTotals.kyzylorda * scale}px;">
+                        <span class="bar-value">${storeTotals.kyzylorda} ₸</span>
+                    </div>
+                </div>
+            `;
+            
+            chartDiv.appendChild(magnumBar);
+            chartDiv.appendChild(smallBar);
+            chartDiv.appendChild(kyzylordaBar);
+            lastPriceChart.appendChild(chartDiv);
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const address = document.getElementById('address').value;
+            const phone = document.getElementById('phone').value;
+            
+            const cart = JSON.parse(sessionStorage.getItem('lastCart') || '[]');
+            if (cart.length === 0) {
+                alert('Корзина пуста!');
+                return;
+            }
+            
+            alert(`Заказ оформлен!\nАдрес: ${address}\nТелефон: ${phone}\nСумма: ${sessionStorage.getItem('lastTotal')} ₸`);
+            
+            // Очищаем данные заказа
+            sessionStorage.removeItem('lastCart');
+            sessionStorage.removeItem('lastTotal');
+            sessionStorage.removeItem('lastStoreTotals');
+            
+            // Переходим на страницу подтверждения
+            window.location.href = "{{ url_for('pot') }}";
+        });
+
+        document.addEventListener('DOMContentLoaded', showOrderSummary);
+    </script>
+</body>
+</html>

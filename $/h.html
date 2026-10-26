@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Курс валют — KazPrice</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #141E30, #243B55);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #00d4ff;
+        }
+
+        #chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        #chart-container:hover {
+            transform: scale(1.02);
+        }
+
+        #info {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #ddd;
+        }
+
+        footer {
+            margin-top: auto;
+            color: #aaa;
+            font-size: 0.9rem;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>💰 Курс валют (KZT)</h1>
+
+    <div id="chart-container">
+        <canvas id="ratesChart"></canvas>
+    </div>
+
+    <div id="info">Загрузка данных...</div>
+
+    <footer>© 2025 KazPrice | Данные с open.er-api.com</footer>
+
+    <script>
+        async function loadRates() {
+            try {
+                const res = await fetch('/api/rates');
+                const data = await res.json();
+
+                if (data.error) {
+                    document.getElementById("info").innerText = "Ошибка: " + data.error;
+                    return;
+                }
+
+                const labels = ["USD", "RUB", "CNY"];
+                const values = [data.USD, data.RUB, data.CNY];
+
+                const ctx = document.getElementById('ratesChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Курс валют к тенге (₸)',
+                            data: values,
+                            fill: false,
+                            borderColor: '#00d4ff',
+                            tension: 0.3,
+                            pointBackgroundColor: '#fff',
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#fff', font: { size: 14 } }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#fff', font: { size: 13 } },
+                                grid: { color: 'rgba(255,255,255,0.2)' }
+                            },
+                            y: {
+                                ticks: { color: '#fff', font: { size: 13 } },
+                                grid: { color: 'rgba(255,255,255,0.2)' }
+                            }
+                        }
+                    }
+                });
+
+                document.getElementById("info").innerText =
+                    `USD: ${data.USD} ₸ | RUB: ${data.RUB} ₸ | CNY: ${data.CNY} ₸`;
+
+            } catch (err) {
+                document.getElementById("info").innerText = "Ошибка загрузки данных 😢";
+                console.error(err);
+            }
+        }
+
+        loadRates();
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Заказ подтвержден</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='pot.css') }}">
+</head>
+<body>
+    <img src="{{ url_for('static', filename='KazPrice.png') }}" class="logo" alt="KazPrice">
+    <h1>Заказ успешно оформлен! 🎉</h1>
+    <p class="message">Ваш заказ принят в обработку</p>
+    <p class="thanks">Спасибо за покупку!</p>
+    <a href="{{ url_for('osnov') }}" class="back-link">Вернуться к покупкам</a>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Войти</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='voi.css') }}">
+</head>
+<body>
+
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='KazPrice.png') }}" class="logo" alt="KazPrice">
+    </div>
+
+    
+    <div class="form-wrapper">
+        {% if message %}
+            <div class="message">{{ message }}</div>
+        {% endif %}
+
+        <form action="{{ url_for('voi') }}" method="POST" class="register-form">
+            <h2 class="form-title">Войти</h2>
+
+            
+            <div class="form-group">
+                <label for="gmail">Email:</label>
+                <input type="email" id="gmail" name="gmail" placeholder="Введите email..." required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" minlength="6" placeholder="Введите пароль..." required>
+            </div>
+
+            <button type="submit" class="submit-btn">Войти</button>
+            
+            <p class="login-link">Нет аккаунта? <a href="{{ url_for('regis') }}">Регистрация</a></p>
+        </form>
+    </div>
+
+</body>
+</html>
